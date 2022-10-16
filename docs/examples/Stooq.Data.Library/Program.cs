@@ -105,8 +105,8 @@ public partial class Program
             }
         }
 
-        CheckOpenCloseDaysOfTheWeek.Run(ticker);
-        CheckOpenCloseDaysOfTheWeekPerMonth.Run(ticker);
+        //CheckOpenCloseDaysOfTheWeek.Run(ticker);
+        //CheckOpenCloseDaysOfTheWeekPerMonth.Run(ticker);
     }
 
 

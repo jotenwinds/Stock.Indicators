@@ -35,7 +35,7 @@ public partial class Program
 
         // fetch historical quotes from data provider
 
-        string ticker = "PFE";
+        string ticker = "DIA";
         //IStooqQuote stookQuote1day = GetHistoryFromFeed(ticker, Period._daily);
         //IStooqQuote stookQuote1hr = GetHistoryFromFeed(ticker, Period._hourly);
         IStooqQuote stookQuote5min = GetHistoryFromFeed(ticker, Period._5min);
@@ -107,6 +107,7 @@ public partial class Program
 
         CheckOpenCloseDaysOfTheWeek.Run(ticker);
         CheckOpenCloseDaysOfTheWeekPerMonth.Run(ticker);
+        CheckWeakGapsDaysOfTheWeek.Run(ticker);
     }
 
 
