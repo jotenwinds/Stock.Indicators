@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using NLog;
 using Stooq.Data.Library;
-using static Jo.Backtest.Program.CheckIndecisionWindow;
+using static Jo.Backtest.CheckIndecisionWindow;
 
 namespace Jo.Backtest.Scanners;
 internal class ScanIndecisionWindow
@@ -26,7 +26,7 @@ internal class ScanIndecisionWindow
         int i = 0;
         foreach (var dataKV in r2.DataByTickers)
         {
-            _logger.Info($"{i:#####}/{totalTickers:#####}|Scanning ticker '{dataKV.Key}' ...");
+            _logger.Info($"{++i:#####}/{totalTickers:#####}|Scanning ticker '{dataKV.Key}' ...");
             IStooqQuoteReader stooqQuoteReader = new StooqQuoteReader(Program.InitialFolder);
             IStooqQuote stookQuotes1day = null;
             try
@@ -41,7 +41,7 @@ internal class ScanIndecisionWindow
             if (stookQuotes1day == null)
                 continue;
 
-            CheckIndecisionResult checkResult = Program.CheckIndecisionWindow.Run(stookQuotes1day);
+            CheckIndecisionResult checkResult = CheckIndecisionWindow.Run(stookQuotes1day);
             if (checkResult.Matches.Any())
             {
                 _logger.Info($" - Ticker '{checkResult.Ticker}' has # {checkResult.Matches.Count} Indecision Candle(s).");
@@ -51,13 +51,21 @@ internal class ScanIndecisionWindow
 
         _logger.Info($"There are # {results.Count} tickers with Indecision Candle(s).");
 
-        results = results.OrderBy(x => x.Matches.Count).ToList();
+        results = results.OrderByDescending(x => x.Matches.Count).ToList();
 
-        string targetCheckResultFilename = @"C:\MyDev\f1776\20220909\scan-CheckIndecisionWindow.txt";
-        if (!string.IsNullOrEmpty(targetCheckResultFilename))
+        //string targetCheckResultTXTFilename = @"C:\MyDev\f1776\20220909\scan-CheckIndecisionWindow.txt";
+        //if (!string.IsNullOrEmpty(targetCheckResultTXTFilename))
+        //{
+        //    var json = JsonConvert.SerializeObject(results);
+        //    File.WriteAllText(targetCheckResultFilename, json, System.Text.Encoding.UTF8);
+        //}
+
+        string targetCheckResultJSONFilename = @"C:\MyDev\f1776\20220909\scan-CheckIndecisionWindow.json";
+        if (!string.IsNullOrEmpty(targetCheckResultJSONFilename))
         {
             var json = JsonConvert.SerializeObject(results);
-            File.WriteAllText(targetCheckResultFilename, json, System.Text.Encoding.UTF8);
+            File.WriteAllText(targetCheckResultJSONFilename, json, System.Text.Encoding.UTF8);
         }
+
     }
 }
