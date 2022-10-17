@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jo.Backtest.Scanners;
 using NLog;
 using Skender.Stock.Indicators;
 using Stooq.Data.Library;
@@ -11,13 +12,32 @@ public partial class Program
 {
     private static ILogger _logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 
+    internal const string InitialFolder = @"C:\MyDev\f1776\20220909\data";
+    internal const Market MarketUSA = Market.USA;
+
+
     public static void Main()
     {
-        string InitialFolder = @"C:\MyDev\f1776\20220909\data";
-        string targetDataIndexFilename = @"C:\MyDev\f1776\20220909\data-index.txt";
-        var indexBuilder = new StooqDataIndexBuilder();
-        indexBuilder.BuildIndexFile(InitialFolder, targetDataIndexFilename);
+        // Build Index File v1 of the Algo
+        {
+            string targetDataIndexFilename = @"C:\MyDev\f1776\20220909\data-index.txt";
+            var indexBuilder = new StooqDataIndexBuilder();
+            indexBuilder.BuildIndexFile(InitialFolder, targetDataIndexFilename);
+        }
 
+        // Build Index File v2 of the Algo
+        {
+            string targetDataIndexFilename2 = @"C:\MyDev\f1776\20220909\data-index2.txt";
+            var indexBuilder2 = new StooqDataIndexBuilder2();
+            var r = indexBuilder2.BuildIndexFile(InitialFolder, targetDataIndexFilename2);
+
+            var r2 = r.GetResultByTickers(Period._daily, MarketUSA);
+        }
+
+        // First Scanner
+        {
+            ScanIndecisionWindow.Run(Period._daily, MarketUSA);
+        }
 
         // See ConsoleApp first.  This is more advanced.
 
@@ -35,7 +55,11 @@ public partial class Program
 
         // fetch historical quotes from data provider
 
-        string ticker = "DIA";
+        //string ticker = "DIA";
+        //string ticker = "QQQ";
+        //string ticker = "SPY";
+        string ticker = "PFE";
+
         //IStooqQuote stookQuote1day = GetHistoryFromFeed(ticker, Period._daily);
         //IStooqQuote stookQuote1hr = GetHistoryFromFeed(ticker, Period._hourly);
         IStooqQuote stookQuote5min = GetHistoryFromFeed(ticker, Period._5min);
@@ -108,6 +132,7 @@ public partial class Program
         CheckOpenCloseDaysOfTheWeek.Run(ticker);
         CheckOpenCloseDaysOfTheWeekPerMonth.Run(ticker);
         CheckWeakGapsDaysOfTheWeek.Run(ticker);
+        CheckIndecisionWindow.Run(ticker);
     }
 
 
@@ -134,8 +159,8 @@ public partial class Program
         //    .ToSortedList();
         //return quotes;
 
-        IStooqQuoteReader stooqQuoteReader = new StooqQuoteReader();
-        IStooqQuote result = stooqQuoteReader.GetHistoryFromFeed(Market.USA, ticker, period, 5000, DateOnly.FromDateTime(DateTime.Now));
+        IStooqQuoteReader stooqQuoteReader = new StooqQuoteReader(InitialFolder);
+        IStooqQuote result = stooqQuoteReader.GetHistoryFromFeed(period, Market.USA, ticker, 5000, DateOnly.FromDateTime(DateTime.Now));
 
         return result;
 

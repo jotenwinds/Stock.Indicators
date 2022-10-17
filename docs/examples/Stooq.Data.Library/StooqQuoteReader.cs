@@ -19,45 +19,31 @@ public enum Market : Int32
 
 public interface IStooqQuoteReader
 {
-    public IStooqQuote GetHistoryFromFeed(Market market, string ticker, Period period, int numberOfPeriodsBack, DateOnly StartDate);
+    public string InitialDataFolder { get; }
+
+    public IStooqQuote GetHistoryFromFeed(Period period, Market market, string ticker, int numberOfPeriodsBack, DateOnly StartDate);
+
+    public IStooqQuote GetHistoryFromFeed(Period period, Market market, DataFile dataFile);
 }
 
 public sealed class StooqQuoteReader : IStooqQuoteReader
 {
-    private const string InitialFolder = @"C:\MyDev\f1776\20220909\data";
-    private const string folder_market_usa = "us";
-    private const string folder_daily = "daily";
-    private const string folder_hourly = "hourly";
-    private const string folder_5min = "5 min";
     private const string RAW_DATA_SEPARATOR = @",";
 
     private static ILogger _logger = LogManager.GetCurrentClassLogger();
 
-
-    public IStooqQuote GetHistoryFromFeed(Market market, string ticker, Period period, int numberOfPeriodsBack, DateOnly StartDate)
+    public StooqQuoteReader(string dataFolder)
     {
-        var result = new StooqQuote
-        {
-            Ticker = ticker,
-            DataPeriod = period
-        };
+        if (string.IsNullOrEmpty(dataFolder)) throw new ArgumentNullException(nameof(dataFolder), "Cannot be null or empty.");
+        InitialDataFolder = dataFolder;
+    }
 
-        string marketFolder = folder_market_usa;
-        string periodFolder = "unknown";
-        switch (period)
-        {
-            case Period._5min:
-                periodFolder = folder_5min;
-                break;
-            case Period._hourly:
-                periodFolder = folder_hourly;
-                break;
-            case Period._daily:
-                periodFolder = folder_daily;
-                break;
-            default:
-                throw new ArgumentException("Period of data not yet supported", nameof(period));
-        }
+    public string InitialDataFolder { get; private set; }
+
+    public IStooqQuote GetHistoryFromFeed(Period period, Market market, string ticker, int numberOfPeriodsBack, DateOnly StartDate)
+    {
+        string marketFolder = market.ToMarketPathName();
+        string periodFolder = period.ToPeriodPathName();
 
         string tickerFile = "unknown";
         switch (ticker.ToUpper().Trim())
@@ -78,13 +64,36 @@ public sealed class StooqQuoteReader : IStooqQuoteReader
                 throw new ArgumentException($"Ticker '{ticker}' not yet supported", nameof(ticker));
         }
 
-        string currentFilePath = InitialFolder;
+        string currentFilePath = InitialDataFolder;
         string quoteFileName = Path.Combine(currentFilePath, periodFolder, marketFolder, tickerFile);
         FileInfo sourceFi = new FileInfo(quoteFileName);
 
+        StooqQuote result = ProcessFile(ticker, period, sourceFi);
+        return result;
+    }
+    public IStooqQuote GetHistoryFromFeed(Period period, Market market, DataFile dataFile)
+    {
+        string currentFilePath = InitialDataFolder;
+        string periodFolder = period.ToPeriodPathName();
+        string marketFolder = market.ToMarketPathName();
+        string quoteFileName = Path.Combine(currentFilePath, periodFolder, marketFolder, dataFile.RelativePath, dataFile.FileName);
+        FileInfo sourceFi = new FileInfo(quoteFileName);
+
+        StooqQuote result = ProcessFile(dataFile.Ticker, period, sourceFi);
+        return result;
+    }
+
+
+    private StooqQuote ProcessFile(string ticker, Period period, FileInfo sourceFi)
+    {
+        var result = new StooqQuote
+        {
+            Ticker = ticker,
+            DataPeriod = period
+        };
+
         try
         {
-
             _logger.Info($"Retrieving quote records from [filename: '{sourceFi.FullName}'].");
             int lineNumber;
 
@@ -137,7 +146,6 @@ public sealed class StooqQuoteReader : IStooqQuoteReader
             _logger.Error(ex, $"|An error occured during the parsing of the file '{sourceFi.Name}'.");
             throw;
         }
-
         return result;
     }
 

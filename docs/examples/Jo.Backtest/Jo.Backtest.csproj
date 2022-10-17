@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Jo.CustomIndicatorsLibrary\Jo.CustomIndicatorsLibrary.csproj" />
     <ProjectReference Include="..\Stooq.Data.Library\Stooq.Data.Library.csproj" />
   </ItemGroup>
 

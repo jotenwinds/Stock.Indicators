@@ -9,17 +9,6 @@ public class StooqDataIndexBuilder
 {
     private static ILogger _logger = LogManager.GetCurrentClassLogger();
 
-    internal class DataFile
-    {
-        public string Period { get; set; }
-        public string Market { get; set; }
-        public string Ticker { get; set; }
-
-        public string RelativePath { get; set; }
-        public string FileName { get; set; }
-    }
-
-
     // Stoop Data Root structure:
     //  -data
     //      -5 min
