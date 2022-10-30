@@ -61,12 +61,21 @@ public static partial class DivePattern
             r.HasPpoCrossSignalAbove = prvDate.IsPpoBullish && r.IsPpoBearish;
             r.HasSignalCrossPpoAbove = prvDate.IsPpoBearish && r.IsPpoBullish;
 
-            if (r.HasMdiCrossPdiAbove && r.IsPpoBearish)
+            if ((r.HasMdiCrossPdiAbove && r.IsPpoBearish) ||
+                (r.IsMdiAbovePdi && r.HasPpoCrossSignalAbove))
             {
                 r.Match = Match.BearConfirmed;
             } else if (r.HasMdiCrossPdiAbove || r.IsPpoBearish)
             {
-                r.Match = Match.BearSignal;
+                r.Match = Match.BearBasis;
+            } else if ((r.HasPdiCrossMdiAbove && r.IsPpoBullish) ||
+                (r.IsPdiAboveMdi && r.HasSignalCrossPpoAbove))
+            {
+                r.Match = Match.BullConfirmed;
+            }
+            else if (r.HasPdiCrossMdiAbove || r.IsPpoBullish)
+            {
+                r.Match = Match.BullBasis;
             }
         }
         return results;
