@@ -7,7 +7,7 @@ namespace Jo.Tests.Indicators.Common;
 internal class TestData
 {
     // Daily data of Intel Corporation (INTC).
-    internal static IEnumerable<IQuote> GetDailyINTC(int days = 502)
+    internal static IEnumerable<IQuote> GetDailyINTC(int days = 800)
         => File.ReadAllLines("_common/data/intc.us.txt")
             .Skip(1)
             .Select(v => Importer.QuoteFromCsv(v))

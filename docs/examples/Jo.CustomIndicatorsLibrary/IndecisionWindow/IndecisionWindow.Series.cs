@@ -16,7 +16,7 @@ public static partial class CustomIndicators
         this IEnumerable<TQuote> quotes)
         where TQuote : IQuote
     {
-        int lookbackPeriods = 3;
+        //int lookbackPeriods = 3;
         // initialize
         List<JoCandleResult> results = quotes.ToCandleResults();
         // maxPriceChangePercent /= 100;

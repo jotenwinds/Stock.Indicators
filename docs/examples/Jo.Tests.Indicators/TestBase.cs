@@ -19,5 +19,4 @@ public abstract class TestBase
     internal static readonly CultureInfo EnglishCulture = new("en-US", false);
 
     internal static readonly IEnumerable<IQuote> DailyINTCquotes = TestData.GetDailyINTC();
-
 }
