@@ -166,7 +166,7 @@ public sealed class StooqQuoteReader : IStooqQuoteReader
         }
         catch (Exception ex)
         {
-            string errorMsg = string.Format("An error occurred whilst parsing the recored data [error: '{0}'].", ex.Message);
+            string errorMsg = string.Format("An error occurred whilst parsing the record data [error: '{0}'].", ex.Message);
             _logger.Error(ex, errorMsg);
         }
     }

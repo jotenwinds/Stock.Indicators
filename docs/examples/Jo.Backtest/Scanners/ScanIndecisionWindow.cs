@@ -28,20 +28,20 @@ internal class ScanIndecisionWindow
         {
             _logger.Info($"{++i:#####}/{totalTickers:#####}|Scanning ticker '{dataKV.Key}' ...");
             IStooqQuoteReader stooqQuoteReader = new StooqQuoteReader(Program.InitialFolder);
-            IStooqQuote stookQuotes1day = null;
+            IStooqQuote stooqQuotes1day = null;
             try
             {
-                stookQuotes1day = stooqQuoteReader.GetHistoryFromFeed(period, market, dataKV.Value);
+                stooqQuotes1day = stooqQuoteReader.GetHistoryFromFeed(period, market, dataKV.Value);
             }
             catch (System.Exception ex)
             {
                 _logger.Warn(ex, $"An error occured whilst reading data for ticker '{dataKV.Key}'.");
             }
 
-            if (stookQuotes1day == null)
+            if (stooqQuotes1day == null)
                 continue;
 
-            CheckIndecisionResult checkResult = CheckIndecisionWindow.Run(stookQuotes1day);
+            CheckIndecisionResult checkResult = CheckIndecisionWindow.Run(stooqQuotes1day);
             if (checkResult.Matches.Any())
             {
                 _logger.Info($" - Ticker '{checkResult.Ticker}' has # {checkResult.Matches.Count} Indecision Candle(s).");

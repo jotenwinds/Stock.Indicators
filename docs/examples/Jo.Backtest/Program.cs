@@ -1,5 +1,6 @@
 using System;
 using Jo.Backtest.Backtests;
+using Jo.Backtest.Charter;
 using Jo.Backtest.Scanners;
 using NLog;
 using Stooq.Data.Library;
@@ -10,7 +11,8 @@ public partial class Program
 {
     private static ILogger _logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 
-    internal const string InitialFolder = @"C:\MyDev\f1776\20220909\data";
+    internal const string InitialFolder = @"C:\MyDev\f1776\stooq\20231219\data";
+    internal const string ChartFolder = @"C:\tmp\charts";
     internal const Market MarketUSA = Market.USA;
 
 
@@ -35,11 +37,23 @@ public partial class Program
         }
 
         // First Scanner
+        if (false)
         {
             ScanIndecisionWindow.Run(Period._daily, MarketUSA);
         }
 
-        // See ConsoleApp first.  This is more advanced.
+        // First charter
+        if (true)
+        {
+            //string ticker = "LW.US";
+            // string ticker = "TGT.US"; // data\daily\us\nyse stocks\2
+            string ticker = "FITB.US"; // daily\us\nasdaq stocks\1
+            //string ticker = "DUST.US"; // daily\us\nyse etfs\1
+            //string ticker = "GBTC.US"; // daily\us\nasdaq stocks\1
+            PeriodCharter.Run(Period._daily, MarketUSA, ticker);
+        }
+
+        // See ConsoleApp first. This is more advanced.
         if (true)
         {
             //string ticker = "DIA";
@@ -60,7 +74,9 @@ public partial class Program
                 CheckOpenCloseDaysOfTheWeekPerMonth.Run(ticker);
                 CheckWeakGapsDaysOfTheWeek.Run(ticker);
             }
-            if (true)
+
+            // Backtest CheckIndecisionWindow
+            if (false)
             {
                 CheckIndecisionWindow.Run(ticker);
             }

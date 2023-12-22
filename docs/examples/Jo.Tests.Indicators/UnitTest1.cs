@@ -129,7 +129,7 @@ public class Adx : TestBase
 
 
     [TestMethod]
-    public void DivePatter_Standard_13_21_8_21()
+    public void DivePattern_Standard_13_21_8_21()
     {
         int adxLength = 14;
         int adxThreshold = 21;
@@ -144,8 +144,7 @@ public class Adx : TestBase
         // Write to JSON file
         {
             string targetFileNameJson = Path.Combine(rootDi.FullName, $"intc-divePattern-{adxLength}_{fastLength}_{slowLength}_{signalSmoothingLength}.json");
-            System.Console.WriteLine($"Writing data to '{targetFileNameJson}'");
-
+            System.Console.WriteLine($"Writing JSON data to '{targetFileNameJson}'");
             if (!string.IsNullOrEmpty(targetFileNameJson))
             {
                 var json = JsonConvert.SerializeObject(results);
@@ -156,6 +155,7 @@ public class Adx : TestBase
         // Write to CSV file
         {
             string targetFileNameCsv = Path.Combine(rootDi.FullName, $"intc-divePattern-{adxLength}_{fastLength}_{slowLength}_{signalSmoothingLength}.csv");
+            System.Console.WriteLine($"Writing CVS data to '{targetFileNameCsv}'");
             using (var writer = new StreamWriter(targetFileNameCsv))
             {
                 using (var csvWriter = new CsvWriter(writer, CultureInfo.CurrentCulture))
