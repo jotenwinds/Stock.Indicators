@@ -16,7 +16,7 @@ public class StooqDataIndexBuilder2
         public string RootDataFolder;
         public Dictionary<string, IndexResultsByMarket> DataByPeriods; // {k: period; v: {ResultByMarket} }
 
-        public IndexResulsByTicker GetResultByTickers(Period period, Market market)
+        public IndexResultsByTicker GetResultByTickers(Period period, Market market)
         {
             string periodKeyName = period.ToPeriodPathName();
             if (!DataByPeriods.ContainsKey(periodKeyName))
@@ -34,10 +34,10 @@ public class StooqDataIndexBuilder2
 
     public sealed class IndexResultsByMarket
     {
-        public Dictionary<string, IndexResulsByTicker> DataByMarkets; // {k: market; v: {ResultByTicker} }
+        public Dictionary<string, IndexResultsByTicker> DataByMarkets; // {k: market; v: {ResultByTicker} }
     }
 
-    public sealed class IndexResulsByTicker
+    public sealed class IndexResultsByTicker
     {
         public Dictionary<string, DataFile> DataByTickers; // {k: ticker; v: DataFile }
     }
@@ -100,7 +100,7 @@ public class StooqDataIndexBuilder2
 
     private IndexResultsByMarket BuildIndexFilePerPeriod(DirectoryInfo periodFolder)
     {
-        var results = new IndexResultsByMarket { DataByMarkets = new Dictionary<string, IndexResulsByTicker>() };
+        var results = new IndexResultsByMarket { DataByMarkets = new Dictionary<string, IndexResultsByTicker>() };
 
         List<DataFile> dataFiles = new List<DataFile>();
         var marketFolders = periodFolder.GetDirectories();
@@ -113,9 +113,9 @@ public class StooqDataIndexBuilder2
         return results;
     }
 
-    private IndexResulsByTicker BuildIndexFilePerMarket(string currentPeriod, string currentMarketName, DirectoryInfo marketFolder)
+    private IndexResultsByTicker BuildIndexFilePerMarket(string currentPeriod, string currentMarketName, DirectoryInfo marketFolder)
     {
-        var results = new IndexResulsByTicker { DataByTickers = new Dictionary<string, DataFile>() };
+        var results = new IndexResultsByTicker { DataByTickers = new Dictionary<string, DataFile>() };
         var securityFolders = marketFolder.GetDirectories();
         foreach (var securityFolder in securityFolders)
         {

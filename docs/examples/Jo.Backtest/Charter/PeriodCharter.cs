@@ -13,9 +13,12 @@ using Stooq.Data.Library;
 namespace Jo.Backtest.Charter;
 internal class PeriodCharter
 {
+
+    internal const string PeriodCharterFolder = @"PeriodCharter";
+
     private static ILogger _logger = LogManager.GetCurrentClassLogger();
 
-    internal static readonly IEnumerable<IHolidayPeriod> HolidaysPeriods =
+    internal static readonly List<IHolidayPeriod> HolidaysPeriods =
         HolidaysPeriodsData.GetHolidaysPeriods();
 
     public static void Run(Period period, Market market, string ticker = "PFE.US")
@@ -56,17 +59,18 @@ internal class PeriodCharter
                 IQuote lastQuoteDay = stooqQuotes.QuotesList.Last();
                 _logger.Info($"Last  day in set: {lastQuoteDay.Date:yyyy-MM-dd} ({lastQuoteDay.Date.DayOfWeek})");
 
-                var chartFolder = new DirectoryInfo(Program.ChartFolder);
+                var chartFolder = new DirectoryInfo(Program.BacktestFolder);
                 if (!chartFolder.Exists)
                     chartFolder.Create();
-                var tickerChartFolder = new DirectoryInfo(Path.Combine(chartFolder.FullName, ticker));
+                var tickerChartFolder = new DirectoryInfo(Path.Combine(chartFolder.FullName, ticker, PeriodCharterFolder));
                 if (!tickerChartFolder.Exists)
                     tickerChartFolder.Create();
 
-                int index = 0;
+                int index = 0; // Start at the beginning.
                 int lastIndex = stooqQuotes.QuotesList.Count - 1;
                 IQuote currentQuote = stooqQuotes.QuotesList[index];
-                foreach (var holidaysPeriod in HolidaysPeriods)
+                var holidaysPeriods = PeriodCharter.HolidaysPeriods;
+                foreach (var holidaysPeriod in holidaysPeriods)
                 {
                     if (index > lastIndex)
                     {
@@ -136,6 +140,11 @@ internal class PeriodCharter
                         _logger.Info($" => chart generated '{fullFilename}'.");
                     }
                 }
+
+                var holidaysPeriodsWithQuotes = holidaysPeriods
+                    .Where(x => x.Quotes.Any()).ToList();
+                Dictionary<int, IHolidayYear> holidayYears =
+                    HolidaysPeriodsData.GetHolidayYears(holidaysPeriodsWithQuotes);
             }
         }
         else

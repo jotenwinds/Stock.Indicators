@@ -3,32 +3,36 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Skender.Stock.Indicators;
 
 namespace Jo.Backtest.Charter;
 
 internal class HolidaysPeriodsData
 {
     // Read & Parse the Holidays periods data file.
-    internal static IEnumerable<IHolidayPeriod> GetHolidaysPeriods()
+    internal static List<IHolidayPeriod> GetHolidaysPeriods()
         => File.ReadAllLines("_common/data/Holidays-Periods-From-2000-To-2024.csv")
             .Skip(1)    // Skip the header line
             .Select(Importer.PeriodsFromCsv)
             .OrderBy(x => x.YearId)
             .ToList();
 
-    internal static Dictionary<int, IHolidayYear> GetHolidayYears()
+    internal static Dictionary<int, IHolidayYear> GetHolidayYears(
+        IList<IHolidayPeriod> holidaysPeriods)
     {
-        var years = GetHolidaysPeriods().GroupBy(x => x.Year);
+        var years = holidaysPeriods.GroupBy(x => x.Year);
         var result = new Dictionary<int, IHolidayYear>();
         foreach (IGrouping<int, IHolidayPeriod> holidayPeriods in years)
         {
-            var year = new HolidayYear();
-            year.Year = holidayPeriods.Key;
-            year.Period01 = holidayPeriods.First(x => x.Id == 1);
-            year.Period02 = holidayPeriods.First(x => x.Id == 2);
-            year.Period03 = holidayPeriods.First(x => x.Id == 3);
-            year.Period04 = holidayPeriods.First(x => x.Id == 4);
-            year.Period05 = holidayPeriods.First(x => x.Id == 5);
+            var year = new HolidayYear
+            {
+                Year = holidayPeriods.Key,
+                Period01 = holidayPeriods.First(x => x.Id == 1),
+                Period02 = holidayPeriods.First(x => x.Id == 2),
+                Period03 = holidayPeriods.First(x => x.Id == 3),
+                Period04 = holidayPeriods.First(x => x.Id == 4),
+                Period05 = holidayPeriods.First(x => x.Id == 5)
+            };
             result.Add(year.Year, year);
         }
         return result;
@@ -64,21 +68,34 @@ public interface IHolidayPeriod
     int Id { get; }
     DateOnly From { get; }
     DateOnly To { get; }
+    public decimal PeriodOpen { get; }
+    public decimal PeriodClose { get; }
+
     int HowManyDays { get; }
     int HowManyWeeks { get; }
 
     bool WithinPeriod(DateTime dt);
+
+    List<IQuote> Quotes { get; }
 }
 
 public sealed class HolidayPeriod : IHolidayPeriod
 {
+    public const decimal InvalidPrice = -1m;
+
     public string YearId { get; internal set; }
     public int Year { get; internal set; }
     public int Id { get; internal set; }
     public DateOnly From { get; internal set; }
     public DateOnly To { get; internal set; }
+
+    public decimal PeriodOpen => Quotes.Any() ? Quotes.First().Open : InvalidPrice;
+    public decimal PeriodClose => Quotes.Any() ? Quotes.Last().Open : InvalidPrice;
+
     public int HowManyDays { get; internal set; }
     public int HowManyWeeks { get; internal set; }
+
+    public List<IQuote> Quotes { get; init; } = new();
 
     public bool WithinPeriod(DateTime dt)
     {

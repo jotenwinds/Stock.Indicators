@@ -1,6 +1,8 @@
 using System;
 using Jo.Backtest.Backtests;
 using Jo.Backtest.Charter;
+using Jo.Backtest.Domain;
+using Jo.Backtest.LisCharter;
 using Jo.Backtest.Scanners;
 using NLog;
 using Stooq.Data.Library;
@@ -11,8 +13,8 @@ public partial class Program
 {
     private static ILogger _logger = LogManager.Setup().LoadConfigurationFromFile().GetCurrentClassLogger();
 
-    internal const string InitialFolder = @"C:\MyDev\f1776\stooq\20231219\data";
-    internal const string ChartFolder = @"C:\tmp\charts";
+    internal const string InitialFolder = @"C:\MyDev\f1776\stooq\20240427\data";
+    internal const string BacktestFolder = @"C:\tmp\backtests";
     internal const Market MarketUSA = Market.USA;
 
 
@@ -42,15 +44,24 @@ public partial class Program
             ScanIndecisionWindow.Run(Period._daily, MarketUSA);
         }
 
-        // First charter
-        if (true)
+        // Period charter
+        if (false)
         {
             //string ticker = "LW.US";
             // string ticker = "TGT.US"; // data\daily\us\nyse stocks\2
-            string ticker = "FITB.US"; // daily\us\nasdaq stocks\1
+            string ticker = "DAL.US"; // daily\us\nasdaq stocks\1
             //string ticker = "DUST.US"; // daily\us\nyse etfs\1
             //string ticker = "GBTC.US"; // daily\us\nasdaq stocks\1
             PeriodCharter.Run(Period._daily, MarketUSA, ticker);
+        }
+
+        // TradesForASymbol charter
+        if (true)
+        {
+            string symbol = "PENN"; // daily\us\nasdaq stocks\1
+            TradesForASymbolCharter.Run(Period._daily, MarketUSA, symbol, OptionType.Both);
+            TradesForASymbolCharter.Run(Period._daily, MarketUSA, symbol, OptionType.Call);
+            TradesForASymbolCharter.Run(Period._daily, MarketUSA, symbol, OptionType.Put);
         }
 
         // See ConsoleApp first. This is more advanced.

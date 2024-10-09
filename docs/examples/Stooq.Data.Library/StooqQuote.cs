@@ -36,9 +36,9 @@ public interface IStooqQuote
 [Serializable]
 public sealed class StooqQuote : IStooqQuote
 {
-    public string Ticker { get; set; }
+    public string Ticker { get; set; } = string.Empty;
 
     public List<IQuote> QuotesList { get; set; } = new List<IQuote>();
 
-    public Period DataPeriod { get; set; }
+    public Period DataPeriod { get; set; } = Period.Undefined;
 }
